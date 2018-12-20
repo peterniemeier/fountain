@@ -1,0 +1,28 @@
+<!-- job index -->
+<!-- @jobs includes all of the job active records -->
+<!-- @applied includes applications matching current_user -->
+<h2>Job Index</h2>
+
+<ul>
+  <% if @jobs %>
+    <% @jobs.each do |job|%>
+      <% if @applied.include?(job) %>
+        <li><%=job.title%></li>
+        <li><%=job.description%></li>
+        <li><%=job.employer.name%></li>
+      <% else %>
+        <li><%=job.title%></li>
+        <li><%=job.description%></li>
+        <li><%=job.employer.name%></li>
+        <form action="<%=applications_url%>" method="post">
+          <input type="hidden" name="application[job_id]" value="<%= job.id %>">
+          <input type="hidden" name="application[user_id]" value="<%= current_user.id %>">
+          <input type="submit" name="" value="Apply">
+        </form>
+      <% end %>
+    <% end %>
+  <% end %>
+
+
+
+</ul>
