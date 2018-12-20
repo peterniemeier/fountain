@@ -6,22 +6,21 @@
 #  username        :string           not null
 #  email           :string           not null
 #  password_digest :string           not null
-#  type            :string           not null
+#  user_type       :string           not null
 #  session_token   :string           not null
 #
 
 class User < ApplicationRecord
-  validates :username, :email, :password_digest, :type, :session_token, presence: true
+  validates :username, :email, :password_digest, :user_type, :session_token, presence: true
   validates :password, length: {minimum: 6, allow_nil: true}
 
-  has_many :applications, -> { where type: 'applicant' }
-  has_many :job_listings, -> { where type: 'employer' },
+  has_many :applications
+  has_many :job_listings,
     foreign_key: :employer_id,
     class_name: :Job
   has_many :jobs_applied_to,
     through: :applications,
     source: :job
-
   has_many :job_applicants,
     through: :job_listings,
     source: :applicants
@@ -30,8 +29,8 @@ class User < ApplicationRecord
 
   after_initialize :ensure_session_token
 
-  def self.find_by_credentials(username, password)
-    user = User.find_by(username: username)
+  def self.find_by_credentials(email, password)
+    user = User.find_by(email: email)
     user && user.is_password?(password) ? user : nil
   end
 

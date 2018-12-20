@@ -1,28 +1,44 @@
 <!-- job index -->
 <!-- @jobs includes all of the job active records -->
-<!-- @applied includes applications matching current_user -->
+<!-- current_user.job_applicants includes all of the users who have applied
+  to all current employer's jobs if current_user is an employer-->
+
+<% if @jobs && current_user.user_type == 'applicant'%>
 <h2>Job Index</h2>
-
 <ul>
-  <% if @jobs %>
-    <% @jobs.each do |job|%>
-      <% if @applied.include?(job) %>
-        <li><%=job.title%></li>
-        <li><%=job.description%></li>
-        <li><%=job.employer.name%></li>
-      <% else %>
-        <li><%=job.title%></li>
-        <li><%=job.description%></li>
-        <li><%=job.employer.name%></li>
-        <form action="<%=applications_url%>" method="post">
-          <input type="hidden" name="application[job_id]" value="<%= job.id %>">
-          <input type="hidden" name="application[user_id]" value="<%= current_user.id %>">
-          <input type="submit" name="" value="Apply">
-        </form>
-      <% end %>
+  <% @jobs.each do |job|%>
+    <li><%=job.title%></li>
+    <li><%=job.description%></li>
+    <li><%=job.employer.username%></li>
+    <% unless job.applicants.include?(current_user) %>
+      <form action="<%=applications_url%>" method="post">
+        <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+        <input type="hidden" name="application[job_id]" value="<%= job.id %>">
+        <input type="hidden" name="application[user_id]" value="<%= current_user.id %>">
+        <input type="submit" name="" value="Apply">
+      </form>
     <% end %>
+    <br/>
   <% end %>
-
-
-
 </ul>
+<% end %>
+
+<% if current_user.user_type == 'employer' %>
+  <h2>Post a job</h2>
+  <form class="" action="<%= jobs_url %>" method="post">
+    <input type="hidden" name="authenticity_token" value="<%=form_authenticity_token%>">
+    <input id="title" type="text" name="job[title]" value="" placeholder="Title">
+    <input id="description" type="text" name="job[description]" value="" placeholder="Description">
+    <input id = "employer_id" type="hidden" name="job[employer_id]" value="<%= current_user.id %>">
+    <input type="submit" name="" value="Post this job">
+  </form>
+  <br/>
+  <% if current_user.job_applicants %>
+    <h2>These applicants have applied to your job listings</h2>
+      <ul>
+        <% current_user.job_applicants.each do |applicant|%>
+          <li><%= applicant.username %></li>
+        <% end %>
+      </ul>
+  <% end %>
+<% end %>

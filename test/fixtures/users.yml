@@ -6,7 +6,7 @@
 #  username        :string           not null
 #  email           :string           not null
 #  password_digest :string           not null
-#  type            :string           not null
+#  user_type       :string           not null
 #  session_token   :string           not null
 #
 
